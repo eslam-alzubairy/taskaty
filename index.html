@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تاسكاتــي | قمة تنظيم المهام</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome (Icons) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Preloader -->
+    <div id="preloader">
+        <div class="spinner"></div>
+    </div>
+
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fas fa-rocket"></i>
+                <h1>تاسكاتــي</h1>
+            </div>
+            
+            <nav class="project-nav">
+                <h2>المشاريع</h2>
+                <ul id="project-list">
+                    <!-- Projects will be rendered here -->
+                </ul>
+                <form id="new-project-form">
+                    <input type="text" id="new-project-input" placeholder="مشروع جديد...">
+                    <button type="submit"><i class="fas fa-plus"></i></button>
+                </form>
+            </nav>
+            
+            <!-- === STATS CONTAINER REMOVED === -->
+
+        </aside>
+
+        <main class="main-content">
+            <header class="main-header">
+                <h2 id="current-project-title">كل المهام</h2>
+                <button id="theme-switcher" class="icon-btn">
+                    <i class="fas fa-sun"></i>
+                </button>
+            </header>
+
+            <form id="task-form">
+                <div class="input-group">
+                    <input type="text" id="task-input" placeholder="ما هي مهمتك التالية؟" required>
+                </div>
+                <div class="input-options">
+                    <div class="priority-selector">
+                        <label>الأولوية:</label>
+                        <input type="radio" id="p-high" name="priority" value="high">
+                        <label for="p-high" class="priority-label high">عالية</label>
+                        <input type="radio" id="p-medium" name="priority" value="medium" checked>
+                        <label for="p-medium" class="priority-label medium">متوسطة</label>
+                        <input type="radio" id="p-low" name="priority" value="low">
+                        <label for="p-low" class="priority-label low">منخفضة</label>
+                    </div>
+                    <button type="submit" class="add-task-btn">
+                        <span>أضف مهمة</span> <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </form>
+            
+            <div class="task-list-wrapper">
+                <ul id="task-list">
+                    <!-- Tasks will be rendered here -->
+                </ul>
+            </div>
+        </main>
+    </div>
+
+    <!-- Libraries -->
+    <!-- Chart.js REMOVED, no longer needed -->
+    <!-- Your Script -->
+    <script src="script.js"></script>
+</body>
+</html>
