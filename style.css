@@ -200,7 +200,22 @@ input:checked + .priority-label.low { background: var(--priority-low); color: #f
         width: 100%;
         justify-content: center;
     }
+    .priority-selector {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        width: 100%;
+    }
+    .priority-labels-wrapper {
+        width: 100%;
+        display: flex;
+    }
+    .priority-label {
+        flex-grow: 1;
+        text-align: center;
+    }
 }
+
 
 @media (max-width: 576px) {
     body {
