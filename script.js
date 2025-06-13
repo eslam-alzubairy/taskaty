@@ -18,8 +18,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const taskForm = document.getElementById('task-form');
     const taskInput = document.getElementById('task-input');
     const themeSwitcher = document.getElementById('theme-switcher');
-
-    // === CHART VARIABLES REMOVED ===
+    const menuToggle = document.getElementById('menu-toggle');
+    const sidebar = document.querySelector('.sidebar');
 
     // --- Utility Functions ---
     const saveState = () => {
@@ -48,50 +48,46 @@ document.addEventListener('DOMContentLoaded', () => {
         currentProjectTitle.textContent = activeProject ? activeProject.name : 'كل المهام';
     };
 
-const renderTasks = () => {
-    taskList.innerHTML = '';
-    let tasksToRender = (state.activeProjectId === 'all')
-        ? state.tasks
-        : state.tasks.filter(task => task.projectId === state.activeProjectId);
+    const renderTasks = () => {
+        taskList.innerHTML = '';
+        let tasksToRender = (state.activeProjectId === 'all')
+            ? state.tasks
+            : state.tasks.filter(task => task.projectId === state.activeProjectId);
 
-    // === SORTING LOGIC ADDED HERE ===
-    const priorityOrder = {
-        'high': 1,
-        'medium': 2,
-        'low': 3
-    };
-
-    tasksToRender.sort((a, b) => {
-        // أولاً، نرتب حسب حالة الإنجاز (المهام غير المكتملة تأتي أولاً)
-        if (a.completed !== b.completed) {
-            return a.completed ? 1 : -1;
-        }
-        // إذا كانت حالة الإنجاز متشابهة، نرتب حسب الأولوية
-        return priorityOrder[a.priority] - priorityOrder[b.priority];
-    });
-    // === END OF SORTING LOGIC ===
-
-    if (tasksToRender.length === 0) {
-        taskList.innerHTML = `<p class="empty-tasks" style="color: var(--text-secondary); text-align: center; padding: 20px;">لا توجد مهام في هذا المشروع.</p>`;
-    } else {
-        tasksToRender.forEach(task => {
-            const li = document.createElement('li');
-            li.className = `task-item ${task.completed ? 'completed' : ''}`;
-            li.dataset.id = task.id;
-            li.innerHTML = `
-                <div class="priority-indicator ${task.priority}"></div>
-                <div class="task-content">
-                    <div class="task-text"><h3>${task.text}</h3></div>
-                </div>
-                <div class="task-actions">
-                    <button class="icon-btn complete-btn"><i class="fas ${task.completed ? 'fa-check-circle' : 'fa-check'}"></i></button>
-                    <button class="icon-btn delete-btn"><i class="fas fa-trash"></i></button>
-                </div>
-            `;
-            taskList.appendChild(li);
+        const priorityOrder = { 'high': 1, 'medium': 2, 'low': 3 };
+        tasksToRender.sort((a, b) => {
+            if (a.completed !== b.completed) {
+                return a.completed ? 1 : -1;
+            }
+            return priorityOrder[a.priority] - priorityOrder[b.priority];
         });
-    }
-};
+
+        if (tasksToRender.length === 0) {
+            taskList.innerHTML = `<p class="empty-tasks" style="color: var(--text-secondary); text-align: center; padding: 20px;">لا توجد مهام في هذا المشروع.</p>`;
+        } else {
+            tasksToRender.forEach(task => {
+                const li = document.createElement('li');
+                li.className = `task-item ${task.completed ? 'completed' : ''}`;
+                li.dataset.id = task.id;
+
+                const taskTextDiv = document.createElement('div');
+                taskTextDiv.className = `task-text ${task.priority}`;
+                taskTextDiv.innerHTML = `<h3>${task.text}</h3>`;
+                
+                li.innerHTML = `
+                    <div class="priority-indicator ${task.priority}"></div>
+                    <div class="task-content">
+                        ${taskTextDiv.outerHTML}
+                    </div>
+                    <div class="task-actions">
+                        <button class="icon-btn complete-btn"><i class="fas ${task.completed ? 'fa-check-circle' : 'fa-check'}"></i></button>
+                        <button class="icon-btn delete-btn"><i class="fas fa-trash"></i></button>
+                    </div>
+                `;
+                taskList.appendChild(li);
+            });
+        }
+    };
 
     // --- Event Handlers ---
     const addProject = (e) => {
@@ -105,6 +101,7 @@ const renderTasks = () => {
             saveState();
             renderProjects();
             renderTasks();
+            if (window.innerWidth <= 992) sidebar.classList.remove('open');
         }
     };
 
@@ -112,20 +109,16 @@ const renderTasks = () => {
         e.preventDefault();
         const text = taskInput.value.trim();
         const priority = document.querySelector('input[name="priority"]:checked').value;
+        const currentProjectId = state.activeProjectId;
         
-        const currentProjectId = state.activeProjectId === 'all' ? null : state.activeProjectId;
-        
-        if (!currentProjectId) {
+        if (currentProjectId === 'all') {
             alert('يرجى تحديد مشروع أولاً قبل إضافة مهمة.');
             return;
         }
 
         if (text) {
             const newTask = {
-                id: Date.now().toString(),
-                text,
-                completed: false,
-                priority,
+                id: Date.now().toString(), text, completed: false, priority,
                 projectId: currentProjectId
             };
             state.tasks.push(newTask);
@@ -138,15 +131,21 @@ const renderTasks = () => {
     
     const handleProjectClick = (e) => {
         const target = e.target;
+        let closeSidebar = false;
+
         if (target.matches('.project-item')) {
             state.activeProjectId = target.dataset.id;
+            closeSidebar = true;
         } else if (target.matches('.delete-project-btn')) {
             e.stopPropagation();
             const projectId = target.parentElement.dataset.id;
             if (confirm(`هل أنت متأكد من حذف هذا المشروع وكل مهامه؟`)) {
                 state.projects = state.projects.filter(p => p.id !== projectId);
                 state.tasks = state.tasks.filter(t => t.projectId !== projectId);
-                state.activeProjectId = 'all';
+                if (state.activeProjectId === projectId) {
+                    state.activeProjectId = 'all';
+                }
+                closeSidebar = true;
             }
         } else {
             return;
@@ -154,6 +153,9 @@ const renderTasks = () => {
         saveState();
         renderProjects();
         renderTasks();
+        if (closeSidebar && window.innerWidth <= 992) {
+            sidebar.classList.remove('open');
+        }
     };
 
     const handleTaskClick = (e) => {
@@ -196,6 +198,20 @@ const renderTasks = () => {
         taskList.addEventListener('click', handleTaskClick);
         themeSwitcher.addEventListener('click', switchTheme);
         
+        if (menuToggle) {
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('open');
+            });
+        }
+    
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 992 && sidebar.classList.contains('open')) {
+                if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
+                    sidebar.classList.remove('open');
+                }
+            }
+        });
+
         renderProjects();
         renderTasks();
     };
